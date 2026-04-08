@@ -1,55 +1,51 @@
-[README.md](https://github.com/user-attachments/files/26148350/README.md)
 # Erasmus+ Specialisto Portalas
 
-Streamlit aplikacija skirta Erasmus+ mobilumų koordinatoriams. Leidžia greitai ir patogiai užpildyti mobilumo duomenis dalyviauviems kurie jau pateikė paraišką.
+Streamlit aplikacija Erasmus+ mobilumų koordinatoriams — leidžia greitai užpildyti mobilumo duomenis ir automatiškai sugeneruoti sutartis.
 
 ## Kaip veikia
 
-1. **Mokinys** užpildo paraišką per n8n Student Form — duomenys išsaugomi PostgreSQL
-2. **Specialistas** atidaro šią aplikaciją — mato visus mokinius laukiančius mobilumo duomenų
-3. **Specialistas** pasirenka mokinį, užpildo mobilumo informaciją ir siunčia
-4. **n8n** automatiškai generuoja sutartį su Claude AI, sukuria PDF ir įkelia į Google Drive
-
-## Instaliacija (lokaliai)
-
-```bash
-git clone https://github.com/YOUR_USERNAME/erasmus-specialist-portal
-cd erasmus-specialist-portal
-pip install -r requirements.txt
-cp .env.example .env
-# Užpildykite .env failą savo duomenimis
-streamlit run app.py
-```
-
-## Streamlit Cloud deploy
-
-1. Įkelkite projektą į GitHub
-2. Eikite į [share.streamlit.io](https://share.streamlit.io)
-3. Pasirinkite savo repozitoriją
-4. Nustatykite Secrets (Settings → Secrets):
-
-```toml
-DB_HOST = "your_host"
-DB_PORT = "5432"
-DB_NAME = "erasmus_db"
-DB_USER = "postgres"
-DB_PASSWORD = "your_password"
-N8N_WEBHOOK_URL = "https://milagee.app.n8n.cloud/webhook/specialist-form"
-```
-
-## n8n konfigūracija
-
-Vietoje **Specialist Form** node naudokite **Webhook** node su:
-- HTTP Method: POST
-- Path: `specialist-form`
-
-## Duomenų bazė
-
-PostgreSQL lentelė `erasmus_participants` — sukurkite pagal n8n workflow dokumentaciją.
+1. **Mokinys** užpildo anketą per n8n Student Form — duomenys išsaugomi Google Sheets ir PDF įkeliamas į Google Drive
+2. **Specialistas** atidaro šią aplikaciją — mato visus dalyvius
+3. **Specialistas** pasirenka dalyvį, užpildo mobilumo duomenis ir siunčia
+4. **n8n** per du AI agentus automatiškai sugeneruoja:
+   - Dotacijos sutartį (lietuvių kalba)
+   - Learning Agreement (anglų kalba)
+5. Abu dokumentai įkeliami į Google Drive, specialistas gauna Gmail pranešimą su nuorodomis
 
 ## Technologijos
 
-- [Streamlit](https://streamlit.io) — web sąsaja
-- [PostgreSQL](https://postgresql.org) — duomenų bazė
-- [n8n](https://n8n.io) — automatizacija
-- [Claude AI](https://anthropic.com) — sutarčių generavimas
+- [Streamlit](https://streamlit.io) — specialisto portalas
+- [n8n](https://n8n.io) — automatizavimo platforma (3 workflow)
+- [OpenAI GPT-4](https://openai.com) — AI agentai sutarčių generavimui
+- [Pinecone](https://pinecone.io) — vektorių DB (profesijos + sutarčių šablonai)
+- [Google Drive / Sheets](https://google.com) — dokumentų saugykla
+- [Gmail](https://gmail.com) — automatiniai pranešimai
+- [Flask + wkhtmltopdf](https://flask.palletsprojects.com) — PDF konvertavimas
+- [Claude AI](https://anthropic.com) — kodo rašymas ir konsultavimas 😄
+
+## Lokalus paleidimas (4 CMD langai)
+
+```bash
+# CMD 1
+npx n8n
+
+# CMD 2
+python C:\Users\milag\n8n_files\pdf_server.py
+
+# CMD 3
+node C:\Users\milag\n8n_files\contract_server.js
+
+# CMD 4
+cd erasmus-specialist-portal
+python -m streamlit run app.py
+```
+
+## Instaliacija
+
+```bash
+git clone https://github.com/Milagee-bot/erasmus-specialist-portal
+cd erasmus-specialist-portal
+pip install -r requirements.txt
+cp env.example .env
+streamlit run app.py
+```
